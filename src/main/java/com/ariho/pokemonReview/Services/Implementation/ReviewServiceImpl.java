@@ -30,14 +30,26 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewDTO createReview(int pokemonId, ReviewDTO reviewDTO) {
 
-        Review review = new Review();
+
 
         Pokemon pokemon = pokemonRepository.findById(pokemonId).orElseThrow(()-> new PokemonNotFoundException("Pokemon number "+pokemonId+" not found!"));
+        Review review = new Review();
+
+        review.setId(reviewDTO.getId());
+        review.setTitle(reviewDTO.getTitle());
+        System.out.println("reviewDTO.getTitle(): Going to the DB "+reviewDTO.getTitle());
+
+        review.setContent(reviewDTO.getContent());
+        review.setStars(reviewDTO.getStars());
 
         review.setPokemon(pokemon);
         Review updatedReview= reviewRepository.save(review);
 
         return mapToDTO(updatedReview);
+
+
+
+
     }
 
     @Override
@@ -52,6 +64,10 @@ public class ReviewServiceImpl implements ReviewService {
 
         // Convert the Entity from the repository into a DTO since controllers interact with only DTOs
         ReviewDTO reviewDTO = new ReviewDTO();
+
+
+        System.out.println(review.getTitle());
+        reviewDTO.setId(review.getId());
 
         reviewDTO.setTitle(review.getTitle());
         reviewDTO.setContent(review.getContent());
@@ -70,6 +86,7 @@ public class ReviewServiceImpl implements ReviewService {
         review.setTitle(reviewDTO.getTitle());
         review.setContent(reviewDTO.getContent());
         review.setStars(reviewDTO.getStars());
+
         return review;
 
     }
