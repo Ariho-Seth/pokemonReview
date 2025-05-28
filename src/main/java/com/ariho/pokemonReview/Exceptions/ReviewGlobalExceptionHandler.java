@@ -9,16 +9,16 @@ import org.springframework.web.context.request.WebRequest;
 import java.util.Date;
 
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class ReviewGlobalExceptionHandler {
 
-    @ExceptionHandler(PokemonNotFoundException.class)
-    public ResponseEntity<ErrorObject> handlePokemonNotFoundException(PokemonNotFoundException ex, WebRequest request){
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<ErrorObject> handleReviewNotFoundException(ReviewNotFoundException ex, WebRequest request){
         ErrorObject errorObject = new ErrorObject();
-
-        errorObject.setStatusCode(HttpStatus.NOT_FOUND.value());
         errorObject.setMessage(ex.getMessage());
+        errorObject.setStatusCode(HttpStatus.NOT_FOUND.value());
         errorObject.setTimestamp(new Date());
 
         return new ResponseEntity<>(errorObject, HttpStatus.NOT_FOUND);
     }
+
 }

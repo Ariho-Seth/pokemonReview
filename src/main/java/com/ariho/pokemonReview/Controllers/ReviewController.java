@@ -30,6 +30,19 @@ public class ReviewController {
     public List<ReviewDTO> getReview(@PathVariable(value= "pokemonId") int id){
         return reviewService.getReviewByPokemonID(id);
     }
+    @GetMapping("pokemon/{pokemonId}/review/{reviewId}")
+    public ResponseEntity<ReviewDTO> getReviewById(@PathVariable(value= "pokemonId") int pokemonId, @PathVariable(value = "reviewId") int reviewId){
+        return new ResponseEntity<> (reviewService.getReviewById(pokemonId, reviewId), HttpStatus.OK);
+    }
 
+    @PutMapping("pokemon/{pokemonId}/review/{reviewId}")
+    public ResponseEntity<ReviewDTO> updateReview(@PathVariable(value="pokemonId") int pokemonId, @PathVariable(value= "reviewId") int reviewId, @RequestBody ReviewDTO reviewDTO){
+        return new ResponseEntity<>(reviewService.updateReview(pokemonId, reviewId, reviewDTO), HttpStatus.OK);
+    }
+    @DeleteMapping("pokemon/{pokemonId}/review/{reviewId}")
+    public ResponseEntity<String> deleteReview(@PathVariable(value="pokemonId") int pokemonId, @PathVariable(value = "reviewId") int reviewId){
+        reviewService.deleteReview(pokemonId, reviewId);
+        return new ResponseEntity<>("Review Deleted!", HttpStatus.OK);
+    }
 
 }

@@ -3,12 +3,14 @@ package com.ariho.pokemonReview.Services.Implementation;
 import com.ariho.pokemonReview.DTO.PokemonDTO;
 import com.ariho.pokemonReview.DTO.ReviewDTO;
 import com.ariho.pokemonReview.Exceptions.PokemonNotFoundException;
+import com.ariho.pokemonReview.Exceptions.ReviewNotFoundException;
 import com.ariho.pokemonReview.Model.Pokemon;
 import com.ariho.pokemonReview.Model.Review;
 import com.ariho.pokemonReview.Repository.PokemonRepository;
 import com.ariho.pokemonReview.Repository.ReviewRepository;
 import com.ariho.pokemonReview.Services.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,10 +22,13 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final PokemonRepository pokemonRepository;
     private final ReviewRepository reviewRepository;
+    private final ResourcePatternResolver resourcePatternResolver;
+
     @Autowired
-    public ReviewServiceImpl(ReviewRepository reviewRepository, PokemonRepository pokemonRepository){
+    public ReviewServiceImpl(ReviewRepository reviewRepository, PokemonRepository pokemonRepository, ResourcePatternResolver resourcePatternResolver){
         this.reviewRepository= reviewRepository;
         this.pokemonRepository = pokemonRepository;
+        this.resourcePatternResolver = resourcePatternResolver;
     }
 
 
@@ -58,6 +63,44 @@ public class ReviewServiceImpl implements ReviewService {
         List<Review> reviewsList= reviewRepository.findByPokemonId(pokemonId);
 
         return reviewsList.stream().map(review -> mapToDTO(review)).collect(Collectors.toList());
+    }
+
+    @Override
+    public ReviewDTO getReviewById(int pokemonId, int reviewId) {
+        Pokemon pokemon= pokemonRepository.findById(pokemonId).orElseThrow(()-> new PokemonNotFoundException("Pokemon number "+pokemonId+" not found!"));
+        Review review = reviewRepository.findById(reviewId).orElseThrow(()-> new ReviewNotFoundException("Review number "+reviewId+" not found!"));
+
+        if(review.getPokemon().getId() != (pokemon.getId())) throw new ReviewNotFoundException("Review number "+reviewId+" not found");
+
+        return mapToDTO(review);
+
+    }
+
+    @Override
+    public ReviewDTO updateReview(int pokemonId, int reviewId, ReviewDTO reviewDTO) {
+       Pokemon pokemon = pokemonRepository.findById(pokemonId).orElseThrow(()-> new PokemonNotFoundException("Pokemon number "+pokemonId+" not found"));
+       Review review= reviewRepository.findById(reviewId).orElseThrow(()-> new ReviewNotFoundException("Review number "+reviewId+" not found"));
+
+       if(review.getPokemon().getId() != pokemon.getId()) throw new ReviewNotFoundException("Review number "+reviewId+" not found");
+
+       review.setTitle(reviewDTO.getTitle());
+       review.setContent(reviewDTO.getContent());
+       review.setStars(reviewDTO.getStars());
+       Review updatedReview= reviewRepository.save(review);
+       return mapToDTO(updatedReview);
+    }
+
+    @Override
+    public void deleteReview(int pokemonId, int reviewId) {
+        Pokemon pokemon = pokemonRepository.findById(pokemonId).orElseThrow(()-> new PokemonNotFoundException("Pokemon number "+pokemonId+" not found"));
+        Review review= reviewRepository.findById(reviewId).orElseThrow(()-> new ReviewNotFoundException("Review number "+reviewId+" not found"));
+
+        if(review.getPokemon().getId() != pokemon.getId()) throw new ReviewNotFoundException("Review number "+reviewId+" not found");
+
+        reviewRepository.delete(review);
+
+
+
     }
 
     private ReviewDTO mapToDTO(Review review){
