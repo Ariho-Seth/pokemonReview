@@ -1,7 +1,8 @@
 package com.ariho.pokemonReview.Controllers;
 
 import com.ariho.pokemonReview.DTO.PokemonDTO;
-import com.ariho.pokemonReview.Model.Pokemon;
+
+import com.ariho.pokemonReview.DTO.PokemonResponse;
 import com.ariho.pokemonReview.Services.PokemonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,13 +23,16 @@ public class PokemonController {
     }
 
     @GetMapping("pokemon")
-    public ResponseEntity<List<PokemonDTO>> getPokemons(){
+    public ResponseEntity<PokemonResponse> getPokemons(
+            @RequestParam(value = "pageNo", defaultValue="0", required= false ) int pageNo,
+            @RequestParam(value= "pageSize", defaultValue = "10", required= false ) int pageSize
+            ){
 
-        return new ResponseEntity<>(pokemonService.getAllPokemon(), HttpStatus.OK);
+        return new ResponseEntity<>(pokemonService.getAllPokemon(pageNo, pageSize), HttpStatus.OK);
     }
     @GetMapping("pokemon/{id}")
-    public Pokemon pokemonDetail(@PathVariable int id){
-        return new Pokemon(id, "Squirrel", "Broiler");
+    public ResponseEntity<PokemonDTO> pokemonDetail(@PathVariable int id){
+         return ResponseEntity.ok(pokemonService.getPokemonByID(id));
     }
 
     @PostMapping("pokemon/create")
@@ -38,14 +42,13 @@ public class PokemonController {
 
     }
     @PutMapping("pokemon/{id}/update")
-    public ResponseEntity<Pokemon> updatePokemon(@RequestBody Pokemon pokemon, @PathVariable("id") int pokenomId){
-        System.out.println(pokemon.getName());
-        System.out.println(pokemon.getType());
-        return ResponseEntity.ok(pokemon);
+    public ResponseEntity<PokemonDTO> updatePokemon(@RequestBody PokemonDTO pokemonDTO, @PathVariable("id") int pokenomId){
+        PokemonDTO updatedpokemonDTO = pokemonService.updatePokemon(pokemonDTO, pokenomId);
+       return new ResponseEntity<>(updatedpokemonDTO, HttpStatus.OK);
     }
     @DeleteMapping("pokemon/{id}/delete")
-    public ResponseEntity<String> deletePokemon(@PathVariable("id") int pokenomId ){
-        System.out.println(pokenomId);
-        return ResponseEntity.ok("Pokemon "+pokenomId+" deleted successfully!");
+    public ResponseEntity<String> deletePokemon(@PathVariable("id") int pokemonId ){
+       pokemonService.deletePokemon(pokemonId);
+       return new ResponseEntity<>("Pokemon "+pokemonId+" deleted", HttpStatus.OK);
     }
 }
