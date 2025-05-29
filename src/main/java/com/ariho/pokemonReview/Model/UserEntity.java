@@ -3,8 +3,8 @@ package com.ariho.pokemonReview.Model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -23,5 +23,5 @@ public class UserEntity {
             inverseJoinColumns= @JoinColumn(name="role_id", referencedColumnName="id"))
 
 
-    private List<Role> roles;
+    private List<Role> roles= new ArrayList<>();
 }
